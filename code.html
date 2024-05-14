@@ -9,6 +9,142 @@
     <h2> ex1 Linear regression</h2>
     <xmp>
 
+        <html>
+<head>
+<script>
+    function loadPizza() {
+        var xhttp = new XMLHttpRequest();
+        var n = "pizza";
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200)
+document.getElementById("pizzamenu").innerHTML=this.responseText;};
+        xhttp.open("GET","hello?item="+n,true);
+        xhttp.send();
+    }
+    function emptyPizza(){
+        document.getElementById("pizzamenu").innerHTML="";
+    }
+    function loadSandwich() {
+        var xhttp = new XMLHttpRequest();
+        var n = "sandwich";
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200)
+document.getElementById("sandwichmenu").innerHTML=this.responseText;};
+        xhttp.open("GET","hello?item="+n,true);
+        xhttp.send();
+    }
+    function emptySandwich(){
+        document.getElementById("sandwichmenu").innerHTML="";
+}
+</script>
+<style>
+    #pizza, #sandwich {
+        color: rgb(146, 83, 136);
+        font-size: 30px;
+          font-weight: bold;
+        padding-left: 20px;
+        padding-right: 30px;
+    }
+    #pizzamenu, #sandwichmenu{
+        padding-left: 20px;
+        padding-bottom: 20px;
+        text-align: center;
+        width: 100px;
+        padding-right: 20px;
+} #items{
+        display: flex;
+        flex-direction: row;
+        /* justify-content: space-between; */
+} #menus{
+        display: flex;
+        flex-direction: row;
+    }
+</style>
+</head>
+<body>
+ <p style="font-size: 40px; font-weight: bold; padding-left: 20px;">Ajax
+Driven Menus</p>
+ <div id="items">
+ <p id="pizza" onmouseover="loadPizza()" onmouseout="emptyPizza()">
+Pizza
+    </p>
+<p id="sandwich" onmouseover="loadSandwich()" onmouseout="emptySandwich()">
+Sandwiches
+</p> </div>
+<div id="menus">
+    <div id="pizzamenu"></div>
+    <div id="sandwichmenu"></div>
+</div>
+</body>
+</html>
+⎯ web.xml
+ <web-app>
+<servlet>
+<servlet-name>PopUpAjax</servlet-name>
+<servlet-class>PopUpAjax</servlet-class>
+</servlet>
+<servlet-mapping>
+
+  <servlet-name>PopUpAjax</servlet-name>
+<url-pattern>/hello</url-pattern>
+</servlet-mapping>
+<welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+</welcome-file-list>
+</web-app>
+⎯ PopUpAjax.java
+ import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.io.*;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+ @WebServlet("/PopUpAjax")
+public class PopUpAjax extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse
+response)
+            throws ServletException, IOException {
+        response.setContentType("text/html");
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        PrintWriter out = response.getWriter();
+        String n = request.getParameter("item");
+        try {
+            Class.forName("org.mariadb.jdbc.Driver");
+            con =
+DriverManager.getConnection("jdbc:mariadb://localhost:3306/mysql", "root",
+"password");
+            System.out.println("Connection successful");
+            System.out.println("Item" + n);
+            String query = "SELECT * FROM " + n + ";";
+            pstmt = con.prepareStatement(query);
+            rs = pstmt.executeQuery();
+            String output = "";
+
+while (rs.next()) {
+        output += "<p>" + rs.getString("item") + "</p>";
+        System.out.println(rs.getString("item"));
+}
+    out.println(output);
+} catch (ClassNotFoundException | SQLException e) {
+    out.println("<html><body><b>" + "Chapathi"+ "</b></body></html>");
+    e.printStackTrace();
+} finally {
+    try {
+        if (rs != null)
+            rs.close();
+        if (pstmt != null)
+            pstmt.close();
+} }
+
         import React, { useState } from 'react';
         import './App.css';
         
@@ -54,6 +190,312 @@
         }
         
         export default App;
+
+        Two-Tier Auth Application:
+⎯ App.js
+ // Two Tier
+import { useState } from 'react';
+import './App.css'
+function TwoTier() {
+   const [user, setUser] = useState('');
+   const [password, setPassword] = useState('');
+   function updateUser(event) {
+       setUser(event.target.value);
+   }
+   function updatePass(event) {
+       setPassword(event.target.value);
+   }
+   function callLogin() {
+       const postData = {
+       username: user,
+       password: password
+       };
+       fetch('http://localhost:5001/login', {
+       method: 'POST',
+       headers: {
+           'Content-Type': 'application/json'
+       },
+       body: JSON.stringify(postData)
+       })
+       .then(res => res.json())
+       .then(data => console.log(data))
+       .catch(error => console.error('Error:', error));
+   }
+   function callSignup() {
+         const postData = {
+       username: user,
+       password: password
+       };
+       fetch('http://localhost:5001/signup', {
+       method: 'POST',
+       headers: {
+           'Content-Type': 'application/json'
+       },
+       body: JSON.stringify(postData)
+       })
+       .then(response => {
+       if (!response.ok) {
+           throw new Error('Network response was not ok');
+       }
+       return response.json();
+       })
+       .then(data => {
+       console.log('Signup successful:', data);
+       })
+       .catch(error => {
+       console.error('Error:', error);
+       });
+   }
+ const formStyle = {
+   padding: '50px',
+   backgroundColor: 'aliceblue',
+ }
+ const AppStyle = {
+ textAlign: "center",
+ display: "flex",
+ justifyContent: "center",
+   alignContent: "center",
+ marginTop:"5%",
+ }
+ return (
+   <div style={AppStyle}>
+     <table style={formStyle} >
+<tbody> <tr>
+           <th><label>User name: </label>
+           <input type="text" placeholder= "Enter your username" value={user}
+onChange={updateUser}></input> </th>
+</tr>
+
+           <tr>
+           <th><label>Password: </label>
+           <input type="password" placeholder="Enter your password"
+value={password} onChange={updatePass}></input></th>
+         </tr>
+         <tr>
+           <th><button onClick={callLogin}>Login</button>
+           <button style = {{margin: "20px"}} onClick={callSignup}>Register New
+User</button></th>
+         </tr>
+       </tbody>
+     </table>
+</div> );
+}
+// Three Tier
+function ThreeTier() {
+   const [user, setUser] = useState('');
+   const [password, setPassword] = useState('');
+   function updateUser(event) {
+       setUser(event.target.value);
+   }
+   function updatePass(event) {
+       setPassword(event.target.value);
+   }
+   function callLogin() {
+       const postData = {
+       username: user,
+       password: password
+       };
+       fetch('http://localhost:5001/login', {
+       method: 'POST',
+       headers: {
+           'Content-Type': 'application/json'
+       },
+       body: JSON.stringify(postData)
+       })
+       .then(res => res.json())
+       .then(data => console.log(data))
+       .catch(error => console.error('Error:', error));
+}
+
+    function callSignup() {
+      const postData = {
+      username: user,
+      password: password
+      };
+      fetch('http://localhost:5001/signup', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(postData)
+      })
+      .then(response => {
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+      return response.json();
+      })
+      .then(data => {
+      console.log('Signup successful:', data);
+      })
+      .catch(error => {
+      console.error('Error:', error);
+      });
+}
+const formStyle = {
+  padding: '50px',
+  backgroundColor: 'aliceblue',
+}
+const AppStyle = {
+textAlign: "center",
+display: "flex",
+justifyContent: "center",
+  alignContent: "center",
+marginTop:"5%",
+}
+ return (
+  <div style={AppStyle}>
+    <table style={formStyle} >
+    <tbody>
+
+           <tr>
+           <th><label>User name: </label>
+           <input type="text" placeholder= "Enter your username" value={user}
+onChange={updateUser}></input> </th>
+         </tr>
+         <tr>
+           <th><label>Password: </label>
+           <input type="password" placeholder="Enter your password"
+value={password} onChange={updatePass}></input></th>
+         </tr>
+         <tr>
+           <th><button onClick={callLogin}>Login</button>
+           <button style = {{margin: "20px"}} onClick={callSignup}>Register New
+User</button></th>
+         </tr>
+       </tbody>
+     </table>
+</div> );
+}
+export default ThreeTier;
+⎯ twotier.js
+ const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors'); // Import the cors middleware
+const app = express();
+app.use(cors()); // Enable CORS
+const PORT = process.env.PORT || 5001;
+// Middleware
+app.use(bodyParser.json());
+// Dummy user data (Replace this with data from your database)
+let users = [
+ { id: 1, username: 'aathishs', password: 'pass' },
+];
+// Login endpoint
+app.post('/login', (req, res) => {
+ const { username, password } = req.body;
+
+   // Find user by username
+ const user = users.find(user => user.username === username);
+ if (!user) {
+   return res.status(404).json({ message: 'User not found' });
+}
+ // Check password
+ if (user.password !== password) {
+   return res.status(401).json({ message: 'Invalid password' });
+}
+ // Return a success message or token if needed
+ res.json({ message: 'Login successful' });
+});
+// Signup endpoint
+app.post('/signup', (req, res) => {
+ const { username, password } = req.body;
+ // Check if the username already exists
+ const existingUser = users.find(user => user.username === username);
+ if (existingUser) {
+   return res.status(400).json({ message: 'Username already exists' });
+ }
+ // Create a new user object
+ const newUser = {
+   id: users.length + 1,
+   username,
+   password
+};
+ // Add the new user to the users array (this would typically be stored in a
+database)
+ users.push(newUser);
+   res.status(201).json({ message: 'Signup successful', user: newUser });
+   console.log(users);
+});
+// Start server
+app.listen(PORT, () => {
+ console.log(`Server is running on port ${PORT}`);
+
+});
+        html>
+<head>
+<title>Authentication Web Application</title>
+</head>
+<body>
+<form action="hello" method="post">
+<Label>User Name: <input type="text" name="uname"></label>
+<Label>Password: <input type="password" name="password"></label>
+<button type="submit">Click Me</button>
+</form>
+</body>
+</html>
+web.xml
+<web-app>
+<servlet>
+<servlet-name>DatabaseServlet</servlet-name>
+<servlet-class>DatabaseServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>DatabaseServlet</servlet-name>
+<url-pattern>/hello</url-pattern>
+</servlet-mapping>
+<welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+</welcome-file-list>
+</web-app>
+DatabaseServlet.java
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+@WebServlet("/DatabaseServlet")
+public class DatabaseServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse
+response)
+            throws ServletException, IOException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        PrintWriter out = response.getWriter();
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con =
+DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root",
+"Murani3110*");
+            String query = "SELECT * FROM Employees WHERE first = ?";
+            pstmt = con.prepareStatement(query);
+            pstmt.setString(1, request.getParameter("uname"));
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                out.println("<html><body><b>User Found</b></body></html>");
+            } else {
+                out.println("<html><body><b>User Not
+Found</b></body></html>");
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (con != null) con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+} }
+} }
 
 </xmp>
 </body>
